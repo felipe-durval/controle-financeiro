@@ -21,6 +21,26 @@ export function formatDate(isoDate) {
   return `${day}/${month}/${year}`;
 }
 
+// Converte a data da API (2026-08-15T00:00:00.000Z) para AAAA-MM-DD,
+// que e o formato do <input type="date">. Lemos em UTC pelo mesmo
+// motivo do formatDate: o fuso local deslocaria o dia.
+export function toDateInputValue(isoDate) {
+  const date = new Date(isoDate);
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+
+  return `${date.getUTCFullYear()}-${month}-${day}`;
+}
+
+// Data de hoje em AAAA-MM-DD, para o formulario ja vir preenchido.
+export function todayInputValue() {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
 // Devolve o mes atual no formato AAAA-MM, que e o mesmo
 // aceito pelo <input type="month"> e pela API.
 export function currentMonth() {
