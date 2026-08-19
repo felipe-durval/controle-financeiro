@@ -37,6 +37,15 @@ describe('Cabecalhos de seguranca', () => {
 
     expect(response.headers['x-frame-options']).toBeDefined();
   });
+
+  it('permite que o frontend, em outra origem, leia as respostas', async () => {
+    const response = await request(app).get('/health');
+
+    // Com same-origin (o padrao do helmet) o navegador bloqueia a leitura
+    // da resposta pelo frontend, que roda em outra porta. Quem decide
+    // quais origens podem chamar a API e o CORS, nao este cabecalho.
+    expect(response.headers['cross-origin-resource-policy']).toBe('cross-origin');
+  });
 });
 
 describe('Limite de tamanho do corpo', () => {

@@ -1,3 +1,18 @@
+/* Escala base da interface. O padrao do navegador e 16px; em telas
+   grandes isso deixa tudo miudo. Como o resto do CSS usa rem, mudar
+   este valor aumenta a aplicacao inteira de forma proporcional. */
+html {
+  font-size: 18px;
+}
+
+/* Em telas pequenas voltamos ao padrao: la o espaco e curto
+   e fontes grandes forcariam rolagem lateral. */
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+  }
+}
+
 :root {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
@@ -42,7 +57,7 @@ h1 {
 }
 
 .auth-brand-content {
-  max-width: 460px;
+  max-width: 28.75rem;
   margin-left: auto;
   margin-right: 3rem;
 }
@@ -100,7 +115,7 @@ h1 {
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 30rem;
   margin-left: 3rem;
   display: flex;
   flex-direction: column;
@@ -162,7 +177,7 @@ h1 {
 
   .auth-card {
     margin-left: 0;
-    max-width: 440px;
+    max-width: 30rem;
     background: #ffffff;
     border: 1px solid #e4e7eb;
     border-radius: 12px;
@@ -249,7 +264,7 @@ button:disabled {
 }
 
 .app-header-inner {
-  max-width: 880px;
+  max-width: 55rem;
   margin: 0 auto;
   padding: 0.85rem 1rem;
   display: flex;
@@ -274,7 +289,7 @@ button:disabled {
 }
 
 .page {
-  max-width: 880px;
+  max-width: 55rem;
   margin: 0 auto;
   padding: 2rem 1rem 3rem;
 }
@@ -492,7 +507,7 @@ button:disabled {
 
 .dialog {
   width: 100%;
-  max-width: 460px;
+  max-width: 30rem;
   border: 1px solid #e4e7eb;
   border-radius: 10px;
   padding: 1.75rem;

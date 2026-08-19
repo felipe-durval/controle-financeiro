@@ -19,7 +19,18 @@ if (process.env.TRUST_PROXY === 'true') {
 // Adiciona cabecalhos de seguranca (X-Content-Type-Options, Referrer-Policy,
 // Strict-Transport-Security, entre outros) e remove o X-Powered-By,
 // que anunciava para qualquer um que a API roda em Express.
-app.use(helmet());
+app.use(
+  helmet({
+    // Por padrao o helmet manda Cross-Origin-Resource-Policy: same-origin,
+    // e o navegador passa a bloquear a leitura das respostas por um site
+    // de outra origem -- exatamente o que o nosso frontend faz.
+    // Quem controla quais origens podem chamar a API e o CORS abaixo.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    // A API so devolve JSON; a politica de conteudo abaixo protege
+    // paginas HTML, que nao servimos aqui.
+    contentSecurityPolicy: false,
+  })
+);
 
 // Por padrao o navegador bloqueia requisicoes entre origens diferentes
 // (o frontend em :5173 chamando a API em :3000). O CORS libera apenas
