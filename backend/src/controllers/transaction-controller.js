@@ -48,10 +48,62 @@ async function findOwnedCategory(categoryId, userId) {
   });
 }
 
+const MONTH_REGEX = /^\d{4}-\d{2}$/;
+
+// Converte "2026-08" no intervalo [01/08/2026, 01/09/2026).
+// Usamos "maior ou igual ao inicio E menor que o inicio do mes seguinte"
+// em vez de "ate dia 31": assim nao precisamos saber quantos dias
+// tem cada mes nem tratar ano bissexto.
+function buildMonthRange(month) {
+  if (!MONTH_REGEX.test(month)) {
+    return null;
+  }
+
+  const [year, monthNumber] = month.split('-').map(Number);
+
+  if (monthNumber < 1 || monthNumber > 12) {
+    return null;
+  }
+
+  // Date.UTC evita que o fuso horario da maquina desloque o limite do mes.
+  const start = new Date(Date.UTC(year, monthNumber - 1, 1));
+  const end = new Date(Date.UTC(year, monthNumber, 1));
+
+  return { gte: start, lt: end };
+}
+
 async function list(req, res) {
   try {
+    const { month, categoryId } = req.query;
+
+    // O filtro por userId e a base: os filtros opcionais apenas estreitam
+    // o resultado, nunca ampliam para alem das transacoes do usuario.
+    const where = { userId: req.userId };
+
+    if (month !== undefined) {
+      const range = buildMonthRange(month);
+
+      if (!range) {
+        return res
+          .status(400)
+          .json({ error: 'Mes invalido. Use o formato AAAA-MM (ex: 2026-08).' });
+      }
+
+      where.date = range;
+    }
+
+    if (categoryId !== undefined) {
+      const id = parseId(categoryId);
+
+      if (!id) {
+        return res.status(400).json({ error: 'Id de categoria invalido.' });
+      }
+
+      where.categoryId = id;
+    }
+
     const transactions = await prisma.transaction.findMany({
-      where: { userId: req.userId },
+      where,
       include: { category: { select: { id: true, name: true } } },
       orderBy: [{ date: 'desc' }, { id: 'desc' }],
     });
