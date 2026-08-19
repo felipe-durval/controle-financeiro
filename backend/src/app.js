@@ -1,6 +1,7 @@
 const express = require('express');
 const authRoutes = require('./routes/auth-routes');
 const categoryRoutes = require('./routes/category-routes');
+const transactionRoutes = require('./routes/transaction-routes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get('/health', (req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
+app.use('/transactions', transactionRoutes);
 
 // Rota nao encontrada.
 app.use((req, res) => {
