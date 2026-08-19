@@ -1,0 +1,33 @@
+# Sobe um PostgreSQL local para desenvolvimento.
+# Uso: docker compose up -d   (subir)   |   docker compose down   (parar)
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: controle-financeiro-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: controle_financeiro
+    ports:
+      # host:container - a porta 5432 do container fica acessivel
+      # em localhost:5432 na sua maquina.
+      - '5432:5432'
+    volumes:
+      # Guarda os dados fora do container, para nao perder tudo
+      # ao rodar "docker compose down".
+      - postgres-data:/var/lib/postgresql/data
+      # Scripts nesta pasta rodam automaticamente na primeira inicializacao.
+      # E assim que o banco de testes e criado.
+      - ./docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      # Permite saber quando o banco esta realmente pronto para aceitar conexoes,
+      # nao apenas quando o container subiu.
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d controle_financeiro']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

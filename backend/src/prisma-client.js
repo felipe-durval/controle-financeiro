@@ -1,9 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+const { PrismaPg } = require('@prisma/adapter-pg');
 
 // O adapter e a ponte entre o Prisma e o driver do banco.
-// Ao migrar para PostgreSQL, so esta parte muda (@prisma/adapter-pg).
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL });
+// Trocar de SQLite para PostgreSQL mudou apenas esta linha:
+// nenhuma query da aplicacao precisou ser reescrita.
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 
 // Uma unica instancia compartilhada por toda a aplicacao:
 // cada PrismaClient abre seu proprio pool de conexoes com o banco.
