@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 
+import ThemeToggle from './theme-toggle.jsx';
 import { logout } from '../services/auth-service.js';
 import { getUser } from '../services/auth-storage.js';
 
@@ -24,6 +25,7 @@ function AppHeader() {
 
         <div className="app-header-user">
           {user && <span>{user.name}</span>}
+          <ThemeToggle />
           <button type="button" className="button-secondary" onClick={handleLogout}>
             Sair
           </button>

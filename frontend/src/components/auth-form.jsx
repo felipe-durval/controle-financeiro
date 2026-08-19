@@ -1,3 +1,5 @@
+import ThemeToggle from './theme-toggle.jsx';
+
 // Estrutura visual compartilhada pelas telas de login e cadastro:
 // painel de apresentacao a esquerda, formulario a direita.
 function AuthForm({ title, subtitle, error, loading, loadingLabel, submitLabel, onSubmit, children, footer }) {
@@ -21,6 +23,10 @@ function AuthForm({ title, subtitle, error, loading, loadingLabel, submitLabel, 
       </aside>
 
       <main className="auth-panel">
+        <div className="auth-theme-toggle">
+          <ThemeToggle />
+        </div>
+
         <form
           className="auth-card"
           onSubmit={onSubmit}

@@ -41,11 +41,16 @@ function ExpensesByCategoryChart({ data }) {
         <Tooltip
           formatter={(value) => [formatCurrency(value), 'Despesas']}
           contentStyle={{
-            border: '1px solid var(--chart-grid)',
-            borderRadius: 8,
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            boxShadow: 'var(--shadow-md)',
             fontSize: 13,
+            color: 'var(--text)',
           }}
-          cursor={{ fill: 'rgba(11, 11, 11, 0.04)' }}
+          itemStyle={{ color: 'var(--text)' }}
+          labelStyle={{ color: 'var(--text-muted)', marginBottom: 4 }}
+          cursor={{ fill: 'var(--chart-cursor)' }}
         />
         {/* Uma serie so, entao uma cor so: pintar cada barra de um tom
             diferente repetiria a informacao que o comprimento ja da. */}

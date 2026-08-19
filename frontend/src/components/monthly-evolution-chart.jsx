@@ -48,11 +48,16 @@ function MonthlyEvolutionChart({ data }) {
           <Tooltip
             formatter={(value, name) => [formatCurrency(value), name]}
             contentStyle={{
-              border: '1px solid var(--chart-grid)',
-              borderRadius: 8,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: 10,
+              boxShadow: 'var(--shadow-md)',
               fontSize: 13,
+              color: 'var(--text)',
             }}
-            cursor={{ fill: 'rgba(11, 11, 11, 0.04)' }}
+            itemStyle={{ color: 'var(--text)' }}
+            labelStyle={{ color: 'var(--text-muted)', marginBottom: 4 }}
+            cursor={{ fill: 'var(--chart-cursor)' }}
           />
           <Bar dataKey="income" name="Receitas" fill="var(--chart-income)" radius={[4, 4, 0, 0]} maxBarSize={28} />
           <Bar dataKey="expense" name="Despesas" fill="var(--chart-expense)" radius={[4, 4, 0, 0]} maxBarSize={28} />

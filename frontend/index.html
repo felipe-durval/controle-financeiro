@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Controle Financeiro</title>
+    <script>
+      // Aplica o tema antes da primeira pintura da tela.
+      // Sem isto, a pagina aparece clara por um instante antes de
+      // o React assumir -- aquele "flash" branco no tema escuro.
+      (function () {
+        try {
+          var salvo = localStorage.getItem('controle-financeiro:theme');
+          var tema =
+            salvo === 'dark' || salvo === 'light'
+              ? salvo
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light';
+          document.documentElement.dataset.theme = tema;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body>
     <!-- O React monta a aplicacao inteira dentro desta div. -->

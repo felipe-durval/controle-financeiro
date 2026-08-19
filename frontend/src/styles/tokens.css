@@ -1,0 +1,115 @@
+/* Tokens de design: todas as cores e medidas ficam aqui.
+   O resto do CSS so referencia estas variaveis, entao trocar o tema
+   e mudar um punhado de valores em um lugar so. */
+
+:root {
+  /* Superficies */
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-hover: #f7f8fa;
+  --surface-sunken: #f9fafb;
+
+  /* Bordas */
+  --border: #e6e8ec;
+  --border-strong: #d3d7de;
+
+  /* Texto */
+  --text: #14161a;
+  --text-muted: #6b7280;
+  --text-subtle: #9199a5;
+
+  /* Acento */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #eef4ff;
+  --accent-contrast: #ffffff;
+
+  /* Estados */
+  --positive: #15803d;
+  --positive-soft: #ecfdf3;
+  --negative: #b42318;
+  --negative-soft: #fef3f2;
+  --negative-border: #fecdca;
+
+  /* Graficos: paleta validada contra o fundo #ffffff
+     (separacao para daltonismo 24,7 -- o alvo e 8) */
+  --chart-income: #2a78d6;
+  --chart-expense: #eb6834;
+  --chart-grid: #e9ebef;
+  --chart-axis: #d3d7de;
+  --chart-muted: #6b7280;
+  --chart-cursor: rgba(20, 22, 26, 0.04);
+
+  /* Marca (painel do login) */
+  --brand-from: #1e3a8a;
+  --brand-via: #2563eb;
+  --brand-to: #3b82f6;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-md: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.05);
+  --shadow-lg: 0 4px 8px rgba(16, 24, 40, 0.06), 0 16px 40px rgba(16, 24, 40, 0.1);
+
+  /* Cantos */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* Anel de foco: um so para toda a aplicacao. */
+  --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.28);
+
+  color-scheme: light;
+}
+
+/* Tema escuro.
+   As cores nao sao a inversao do tema claro: cada uma foi escolhida
+   para o novo fundo. Inverter deixaria os tons saturados vibrando
+   contra o escuro. */
+:root[data-theme='dark'] {
+  --bg: #0e1014;
+  --surface: #171a21;
+  --surface-hover: #1d212a;
+  --surface-sunken: #12151b;
+
+  --border: #262b36;
+  --border-strong: #343a48;
+
+  --text: #f0f2f5;
+  --text-muted: #9aa3b2;
+  --text-subtle: #6b7482;
+
+  --accent: #4d8cf5;
+  --accent-hover: #6b9ff7;
+  --accent-soft: #172444;
+  --accent-contrast: #0b0e13;
+
+  --positive: #4ade80;
+  --positive-soft: #12251a;
+  --negative: #f87171;
+  --negative-soft: #2a1517;
+  --negative-border: #4c2225;
+
+  /* Mesmas duas cores, reajustadas para o fundo escuro.
+     Validadas contra #171a21: separacao 26,8. */
+  --chart-income: #3987e5;
+  --chart-expense: #d95926;
+  --chart-grid: #242935;
+  --chart-axis: #343a48;
+  --chart-muted: #9aa3b2;
+  --chart-cursor: rgba(255, 255, 255, 0.05);
+
+  --brand-from: #172554;
+  --brand-via: #1e40af;
+  --brand-to: #2563eb;
+
+  /* No escuro a sombra some; a separacao vem da borda e do tom
+     da superficie, nao de uma sombra que ninguem enxerga. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+  --focus-ring: 0 0 0 3px rgba(77, 140, 245, 0.35);
+
+  color-scheme: dark;
+}

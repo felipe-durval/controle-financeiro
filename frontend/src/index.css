@@ -1,433 +1,71 @@
-/* A escala base fica com o padrao do navegador (16px).
-   Nao forcamos um tamanho aqui de proposito: quem quiser a interface
-   maior ou menor usa o zoom do navegador, e as medidas em rem
-   acompanham. Fixar um valor brigaria com essa preferencia. */
+@import './styles/tokens.css';
 
-:root {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  color: #1f2933;
-  background-color: #f5f7fa;
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-* {
-  box-sizing: border-box;
+html {
+  /* Sem tamanho fixo: o zoom do navegador e a preferencia de fonte
+     do sistema continuam funcionando, e o rem acompanha. */
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
 
-a {
-  color: #2563eb;
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  font-weight: 650;
 }
 
 h1 {
-  font-size: 1.75rem;
-  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
 }
 
-/* Telas de login e cadastro: painel de apresentacao + formulario */
-
-.auth-layout {
-  min-height: 100vh;
-  display: grid;
-  /* A coluna da esquerda e um pouco maior; a direita fica confortavel
-     para o formulario sem esticar demais os campos. */
-  grid-template-columns: 1.1fr 1fr;
+h2 {
+  font-size: 1.1rem;
 }
 
-.auth-brand {
-  background: linear-gradient(160deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  padding: 3rem;
-}
-
-.auth-brand-content {
-  max-width: 28.75rem;
-  margin-left: auto;
-  margin-right: 3rem;
-}
-
-.auth-brand-name {
+p {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  opacity: 0.85;
 }
 
-.auth-brand-tagline {
-  margin: 1.5rem 0 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.2;
+a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 2px;
 }
 
-.auth-brand-list {
-  margin: 2.5rem 0 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  font-size: 1.05rem;
-  opacity: 0.9;
+a:hover {
+  text-decoration-color: currentColor;
 }
 
-.auth-brand-list li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* Um unico anel de foco para tudo que e navegavel por teclado. */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-/* Marcador desenhado em CSS, sem depender de biblioteca de icones. */
-.auth-brand-list li::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.75);
-  flex-shrink: 0;
-}
-
-.auth-panel {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 3rem;
-  background: #ffffff;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 30rem;
-  margin-left: 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-}
-
-.auth-card h1 {
-  font-size: 2rem;
-}
-
-.auth-subtitle {
-  margin: 0 0 0.75rem;
-  color: #6b7280;
-  font-size: 0.95rem;
-}
-
-/* Entre 900 e 1280px o espaco e curto: reduzimos as margens internas
-   para o formulario nao ficar espremido. */
-@media (max-width: 1280px) {
-  .auth-brand {
-    padding: 2.5rem;
-  }
-
-  .auth-brand-content {
-    margin-right: 0;
-  }
-
-  .auth-brand-tagline {
-    font-size: 2rem;
-  }
-
-  .auth-panel {
-    padding: 2.5rem;
-    justify-content: center;
-  }
-
-  .auth-card {
-    margin-left: 0;
-  }
-}
-
-/* Abaixo de 900px o painel de apresentacao sai da frente:
-   em celular ele roubaria a tela toda do formulario. */
-@media (max-width: 900px) {
-  .auth-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-brand {
-    display: none;
-  }
-
-  .auth-panel {
-    justify-content: center;
-    padding: 2rem 1.5rem;
-    background: #f5f7fa;
-    min-height: 100vh;
-  }
-
-  .auth-card {
-    margin-left: 0;
-    max-width: 30rem;
-    background: #ffffff;
-    border: 1px solid #e4e7eb;
-    border-radius: 12px;
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
-    padding: 2.5rem 2rem;
-  }
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.field label {
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.field input {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd2d9;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-}
-
-.field input:focus {
-  outline: 2px solid #2563eb;
-  outline-offset: 1px;
-  border-color: #2563eb;
-}
-
-/* Campos e botao mais altos nas telas de login e cadastro,
-   onde ha espaco de sobra e eles sao o foco da tela. */
-.auth-card .field input,
-.auth-card button[type='submit'] {
-  padding: 0.8rem 0.9rem;
-}
-
-.auth-error {
-  margin: 0;
-  padding: 0.6rem 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
-  color: #b91c1c;
-  font-size: 0.875rem;
-}
-
-button {
-  padding: 0.7rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background: #2563eb;
-  color: #ffffff;
-  font-size: 1rem;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button:hover:not(:disabled) {
-  background: #1d4ed8;
-}
-
-button:disabled {
-  background: #9cb3d9;
-  cursor: not-allowed;
-}
-
-.auth-footer {
-  margin: 0;
-  text-align: center;
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-/* Telas internas */
-
-.app-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e4e7eb;
-}
-
-.app-header-inner {
-  max-width: 55rem;
-  margin: 0 auto;
-  padding: 0.85rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.app-nav {
-  display: flex;
-  gap: 1.25rem;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.app-header-user {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-
-.page {
-  max-width: 55rem;
-  margin: 0 auto;
-  padding: 2rem 1rem 3rem;
-}
-
-.page-subtitle {
-  margin: 0 0 1.5rem;
-  color: #6b7280;
-  font-size: 0.9rem;
-}
-
-.button-secondary {
-  background: #ffffff;
-  color: #374151;
-  border: 1px solid #cbd2d9;
-  font-weight: 500;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.875rem;
-}
-
-.button-secondary:hover:not(:disabled) {
-  background: #f3f4f6;
-}
-
-.button-secondary:disabled {
-  background: #f9fafb;
-  color: #9ca3af;
-}
-
-/* Filtros */
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1rem;
-  padding: 1rem;
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-}
-
-.filters .field {
-  min-width: 180px;
-}
-
-.filters select,
-.filters input {
-  padding: 0.55rem 0.7rem;
-  border: 1px solid #cbd2d9;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-family: inherit;
-  background: #ffffff;
-}
-
-/* Resumo */
-
-.summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.summary-card {
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.summary-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #6b7280;
-}
-
-.summary-value {
-  font-size: 1.35rem;
-}
-
-.value-income {
-  color: #15803d;
-}
-
-.value-expense {
-  color: #b91c1c;
-}
-
-/* Tabela */
-
-.transaction-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.transaction-table th,
-.transaction-table td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid #eef1f4;
-  font-size: 0.925rem;
-}
-
-.transaction-table th {
-  background: #f9fafb;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #6b7280;
-}
-
-.transaction-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.align-right {
-  text-align: right;
-}
-
-.category-tag {
-  display: inline-block;
-  padding: 0.15rem 0.55rem;
-  background: #eef2ff;
-  color: #4338ca;
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-
-.state-message {
-  padding: 2rem 1rem;
-  text-align: center;
-  color: #6b7280;
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-}
-
-/* Visivel apenas para leitores de tela */
+/* Visivel apenas para leitores de tela. */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -440,7 +78,411 @@ button:disabled {
   border: 0;
 }
 
-/* Cabecalho da pagina com acao */
+/* ==========================================================================
+   Formularios
+   ========================================================================== */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.field label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.7rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+  min-width: 0;
+}
+
+input::placeholder {
+  color: var(--text-subtle);
+}
+
+input:hover:not(:disabled),
+select:hover:not(:disabled) {
+  border-color: var(--text-subtle);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+/* O seletor nativo de data e mes fica ilegivel no tema escuro
+   sem esta dica ao navegador. */
+input[type='date'],
+input[type='month'] {
+  color-scheme: inherit;
+}
+
+/* ==========================================================================
+   Botoes
+   ========================================================================== */
+
+button {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1rem;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease, transform 0.06s ease;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+/* Afunda 1px no clique: da a sensacao de botao fisico. */
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--text-subtle);
+}
+
+.button-link {
+  background: none;
+  border: none;
+  padding: 0.15rem 0;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 2px;
+}
+
+.button-link:hover:not(:disabled) {
+  background: none;
+  color: var(--accent-hover);
+  text-decoration-color: currentColor;
+}
+
+.button-link:disabled {
+  color: var(--text-subtle);
+  background: none;
+}
+
+.button-danger {
+  color: var(--negative);
+}
+
+.button-danger:hover:not(:disabled) {
+  color: var(--negative);
+  background: none;
+}
+
+/* Botao quadrado que carrega so um icone. */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+}
+
+.icon-button:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* ==========================================================================
+   Login e cadastro
+   ========================================================================== */
+
+.auth-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+}
+
+.auth-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 3rem;
+  color: #ffffff;
+  background: linear-gradient(150deg, var(--brand-from) 0%, var(--brand-via) 55%, var(--brand-to) 100%);
+  overflow: hidden;
+}
+
+/* Brilho suave no canto, para o gradiente nao ficar chapado. */
+.auth-brand::after {
+  content: '';
+  position: absolute;
+  width: 32rem;
+  height: 32rem;
+  top: -12rem;
+  right: -10rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 65%);
+  pointer-events: none;
+}
+
+.auth-brand-content {
+  position: relative;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: 3rem;
+}
+
+.auth-brand-name {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.auth-brand-tagline {
+  margin-top: 1.5rem;
+  font-size: 2.35rem;
+  font-weight: 680;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.auth-brand-list {
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  font-size: 1rem;
+  opacity: 0.92;
+}
+
+.auth-brand-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Marcador desenhado em CSS, sem biblioteca de icones. */
+.auth-brand-list li::before {
+  content: '';
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18) center / 0.7rem no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+.auth-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 3rem;
+  background: var(--surface);
+}
+
+/* O botao de tema flutua no canto, fora do fluxo do formulario. */
+.auth-theme-toggle {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 26rem;
+  margin-left: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.auth-card h1 {
+  font-size: 1.9rem;
+}
+
+.auth-subtitle {
+  margin-bottom: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.auth-card .field input,
+.auth-card button[type='submit'] {
+  padding: 0.7rem 0.85rem;
+  font-size: 1rem;
+}
+
+.auth-error {
+  padding: 0.7rem 0.85rem;
+  background: var(--negative-soft);
+  border: 1px solid var(--negative-border);
+  border-radius: var(--radius-sm);
+  color: var(--negative);
+  font-size: 0.875rem;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 1280px) {
+  .auth-brand,
+  .auth-panel {
+    padding: 2.5rem;
+  }
+
+  .auth-brand-content {
+    margin-right: 0;
+  }
+
+  .auth-brand-tagline {
+    font-size: 1.9rem;
+  }
+
+  .auth-panel {
+    justify-content: center;
+  }
+
+  .auth-card {
+    margin-left: 0;
+  }
+}
+
+/* Abaixo de 900px o painel sairia roubando a tela do formulario. */
+@media (max-width: 900px) {
+  .auth-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-brand {
+    display: none;
+  }
+
+  .auth-panel {
+    justify-content: center;
+    padding: 2rem 1.25rem;
+    background: var(--bg);
+    min-height: 100vh;
+  }
+
+  .auth-card {
+    max-width: 26rem;
+    padding: 2.25rem 1.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* ==========================================================================
+   Cabecalho das telas internas
+   ========================================================================== */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header-inner {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.app-nav a {
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-nav a:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.app-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.app-header-user span {
+  padding-right: 0.25rem;
+}
+
+/* ==========================================================================
+   Estrutura de pagina
+   ========================================================================== */
+
+.page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2.25rem 1.25rem 4rem;
+}
 
 .page-heading {
   display: flex;
@@ -448,88 +490,189 @@ button:disabled {
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.page-heading .page-subtitle {
-  margin-bottom: 0;
+.page-subtitle {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
 }
 
-/* Acoes nas linhas da tabela */
+.page > h1 + .page-subtitle {
+  margin-bottom: 1.5rem;
+}
+
+/* Superficie padrao: cartoes, filtros, listas. */
+.filters,
+.summary-card,
+.transaction-table,
+.state-message,
+.chart-card,
+.inline-form,
+.category-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ==========================================================================
+   Filtros
+   ========================================================================== */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.filters .field {
+  min-width: 11rem;
+}
+
+/* ==========================================================================
+   Resumo
+   ========================================================================== */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.summary-card {
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.summary-value {
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.value-income {
+  color: var(--positive);
+}
+
+.value-expense {
+  color: var(--negative);
+}
+
+/* ==========================================================================
+   Tabelas
+   ========================================================================== */
+
+.transaction-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 0.8rem 1.25rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.transaction-table th {
+  background: var(--surface-sunken);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.transaction-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.transaction-table tbody tr {
+  transition: background-color 0.12s ease;
+}
+
+.transaction-table tbody tr:hover {
+  background: var(--surface-hover);
+}
+
+/* Valores alinhados a direita usam largura fixa de digito,
+   para as casas decimais ficarem uma embaixo da outra. */
+.align-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
 .row-actions {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.85rem;
   justify-content: flex-end;
 }
 
-.button-link {
-  background: none;
-  border: none;
-  padding: 0;
-  color: #2563eb;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: underline;
+.category-tag {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 550;
 }
 
-.button-link:hover:not(:disabled) {
-  background: none;
-  color: #1d4ed8;
+.state-message {
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
 }
 
-.button-link:disabled {
-  color: #9ca3af;
-  background: none;
-  cursor: not-allowed;
-}
-
-.button-danger {
-  color: #b91c1c;
-}
-
-.button-danger:hover:not(:disabled) {
-  color: #991b1b;
-}
-
-/* Formulario em janela modal */
+/* ==========================================================================
+   Janela modal
+   ========================================================================== */
 
 .dialog {
-  width: 100%;
-  max-width: 30rem;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
+  width: calc(100% - 2rem);
+  max-width: 27rem;
   padding: 1.75rem;
-  background: #ffffff;
-  color: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
 }
 
-/* ::backdrop e a area escura atras da janela modal. */
 .dialog::backdrop {
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(10, 12, 16, 0.55);
+  backdrop-filter: blur(2px);
 }
 
 .dialog h2 {
-  margin: 0 0 1.25rem;
-  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.2rem;
 }
 
 .dialog form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.dialog input,
-.dialog select {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd2d9;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-  background: #ffffff;
-  width: 100%;
 }
 
 .field-row {
@@ -540,51 +683,95 @@ button:disabled {
 
 .field-row .field {
   flex: 1;
-  min-width: 140px;
+  min-width: 8.5rem;
 }
 
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  margin-top: 0.5rem;
+  margin-top: 0.35rem;
 }
 
-/* Tela de categorias */
+/* ==========================================================================
+   Graficos
+   ========================================================================== */
+
+.chart-card {
+  padding: 1.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.chart-subtitle {
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.chart-legend {
+  list-style: none;
+  display: flex;
+  gap: 1.25rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.legend-swatch {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* A tabela dentro do cartao ja esta cercada pela borda dele. */
+.chart-card .transaction-table {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.chart-card .transaction-table th {
+  background: transparent;
+}
+
+/* ==========================================================================
+   Categorias
+   ========================================================================== */
 
 .inline-form {
   display: flex;
   align-items: flex-end;
   gap: 1rem;
   flex-wrap: wrap;
-  padding: 1rem;
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .inline-form .field {
   flex: 1;
-  min-width: 220px;
-}
-
-.inline-form input {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #cbd2d9;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-  width: 100%;
+  min-width: 13rem;
 }
 
 .category-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
   overflow: hidden;
 }
 
@@ -593,29 +780,30 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid #eef1f4;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9375rem;
+  transition: background-color 0.12s ease;
 }
 
 .category-item:last-child {
   border-bottom: none;
 }
 
+.category-item:hover {
+  background: var(--surface-hover);
+}
+
 .category-edit {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.6rem;
   width: 100%;
   flex-wrap: wrap;
 }
 
 .category-edit input {
   flex: 1;
-  min-width: 160px;
-  padding: 0.5rem 0.7rem;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
+  min-width: 10rem;
 }
 
 .category-edit button {
@@ -623,68 +811,15 @@ button:disabled {
   font-size: 0.875rem;
 }
 
-/* Cores dos graficos
-   Validadas com o script do guia de visualizacao contra o fundo branco
-   dos cartoes: separacao para daltonismo (CVD) de 24,7 -- o alvo e 8. */
-:root {
-  --chart-income: #2a78d6;
-  --chart-expense: #eb6834;
-  --chart-grid: #e1e0d9;
-  --chart-axis: #c3c2b7;
-  --chart-muted: #6b7280;
-}
+/* ==========================================================================
+   Preferencia por menos animacao
+   ========================================================================== */
 
-.chart-card {
-  background: #ffffff;
-  border: 1px solid #e4e7eb;
-  border-radius: 10px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.chart-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.chart-card h2 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.chart-subtitle {
-  margin: 0.15rem 0 0;
-  color: #6b7280;
-  font-size: 0.85rem;
-}
-
-/* A tabela dentro do cartao ja tem a borda do proprio cartao. */
-.chart-card .transaction-table {
-  border: none;
-}
-
-.chart-legend {
-  list-style: none;
-  display: flex;
-  gap: 1.25rem;
-  margin: 0 0 0.75rem;
-  padding: 0;
-  font-size: 0.85rem;
-  color: #52514e;
-}
-
-.chart-legend li {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.legend-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
-  display: inline-block;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
