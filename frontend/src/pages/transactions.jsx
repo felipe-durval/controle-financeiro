@@ -1,62 +1,67 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
-import { getCurrentUser, logout } from '../services/auth-service.js';
+import AppHeader from '../components/app-header.jsx';
+import TransactionFilters from '../components/transaction-filters.jsx';
+import TransactionList from '../components/transaction-list.jsx';
+import SummaryCards from '../components/summary-cards.jsx';
+import { useTransactions } from '../hooks/use-transactions.js';
+import { useCategories } from '../hooks/use-categories.js';
+import { currentMonth, formatMonthLabel } from '../utils/format.js';
 
-// Versao provisoria: serve para confirmar que o token guardado no login
-// e aceito pela API. A listagem de verdade vem na etapa 15.
 function Transactions() {
-  const [user, setUser] = useState(null);
-  const [error, setError] = useState('');
+  // Comeca no mes atual: e o que a pessoa quer ver ao abrir o app.
+  const [month, setMonth] = useState(currentMonth());
+  const [categoryId, setCategoryId] = useState('');
 
-  const navigate = useNavigate();
+  const { transactions, loading, error } = useTransactions({ month, categoryId });
+  const { categories } = useCategories();
 
-  useEffect(() => {
-    getCurrentUser()
-      .then(setUser)
-      .catch((err) => {
-        // O PrivateRoute so olha a data de validade do token. Se o backend
-        // recusar mesmo assim, e aqui que descobrimos e mandamos para o login.
-        if (err.status === 401) {
-          navigate('/login', { replace: true });
-          return;
-        }
-
-        setError(err.message);
-      });
-  }, [navigate]);
-
-  function handleLogout() {
-    logout();
-    navigate('/login', { replace: true });
+  function handleClearFilters() {
+    setMonth('');
+    setCategoryId('');
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: '0 auto', padding: '2rem 1rem' }}>
-      <h1>Transacoes</h1>
+    <>
+      <AppHeader />
 
-      {error && (
-        <p className="auth-error" role="alert">
-          {error}
-        </p>
-      )}
+      <main className="page">
+        <h1>Transacoes</h1>
+        <p className="page-subtitle">Exibindo {formatMonthLabel(month)}.</p>
 
-      {user && (
-        <p>
-          Logado como <strong>{user.name}</strong> ({user.email})
-        </p>
-      )}
+        <TransactionFilters
+          month={month}
+          categoryId={categoryId}
+          categories={categories}
+          onMonthChange={setMonth}
+          onCategoryChange={setCategoryId}
+          onClear={handleClearFilters}
+        />
 
-      <p style={{ color: '#6b7280' }}>Listagem e filtros: etapa 15.</p>
+        {/* Cada situacao tem seu proprio retorno, para a tela nunca
+            ficar em branco sem explicacao. */}
+        {loading && <p className="state-message">Carregando...</p>}
 
-      <p>
-        <Link to="/dashboard">Ir para o dashboard</Link>
-      </p>
+        {!loading && error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
 
-      <button type="button" onClick={handleLogout} style={{ marginTop: '1rem' }}>
-        Sair
-      </button>
-    </main>
+        {!loading && !error && transactions.length === 0 && (
+          <p className="state-message">
+            Nenhuma transacao encontrada para este filtro.
+          </p>
+        )}
+
+        {!loading && !error && transactions.length > 0 && (
+          <>
+            <SummaryCards transactions={transactions} />
+            <TransactionList transactions={transactions} />
+          </>
+        )}
+      </main>
+    </>
   );
 }
 
