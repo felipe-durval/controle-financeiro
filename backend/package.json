@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +20,8 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
-    "prisma": "^7.9.1"
+    "jest": "^30.4.2",
+    "prisma": "^7.9.1",
+    "supertest": "^7.2.2"
   }
 }
