@@ -18,6 +18,7 @@ function AppHeader() {
       <div className="app-header-inner">
         <nav className="app-nav">
           <Link to="/transactions">Transacoes</Link>
+          <Link to="/categories">Categorias</Link>
           <Link to="/dashboard">Dashboard</Link>
         </nav>
 

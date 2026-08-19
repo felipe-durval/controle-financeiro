@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import AppHeader from '../components/app-header.jsx';
 import TransactionFilters from '../components/transaction-filters.jsx';
@@ -81,7 +82,7 @@ function Transactions() {
         {!loadingCategories && !hasCategories && (
           <p className="state-message">
             Voce ainda nao tem categorias. E preciso ter pelo menos uma para
-            lancar transacoes.
+            lancar transacoes. <Link to="/categories">Criar categoria</Link>.
           </p>
         )}
 

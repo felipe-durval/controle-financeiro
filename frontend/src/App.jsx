@@ -6,6 +6,7 @@ import Login from './pages/login.jsx';
 import Register from './pages/register.jsx';
 import Dashboard from './pages/dashboard.jsx';
 import Transactions from './pages/transactions.jsx';
+import Categories from './pages/categories.jsx';
 import NotFound from './pages/not-found.jsx';
 
 // Cada <Route> liga um caminho da URL a um componente de pagina.
@@ -45,6 +46,14 @@ function App() {
         element={
           <PrivateRoute>
             <Transactions />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/categories"
+        element={
+          <PrivateRoute>
+            <Categories />
           </PrivateRoute>
         }
       />
