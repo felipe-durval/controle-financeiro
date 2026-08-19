@@ -1,31 +1,63 @@
 # Deploy
 
-## Backend (Railway)
+Três serviços, todos com plano gratuito permanente e **sem cartão de crédito**:
 
-### 1. Criar o projeto
+| Parte | Serviço | Por quê |
+|---|---|---|
+| Banco de dados | [Neon](https://neon.com) | Postgres gratuito que **não expira**, até 100 projetos |
+| Backend | [Render](https://render.com) | Serviço web gratuito, 750 h/mês |
+| Frontend | [Vercel](https://vercel.com) | Gratuito para projetos pessoais |
 
-1. Acesse [railway.app](https://railway.app) e entre com o GitHub.
-2. **New Project → Deploy from GitHub repo** e escolha este repositório.
-3. Em **Settings → Root Directory**, defina `backend`.
-   Sem isso o Railway tenta construir a partir da raiz e não acha o `package.json`.
+> **Por que o banco não fica no Render:** o PostgreSQL gratuito dele **expira em
+> 30 dias** e depois é apagado. Um projeto de portfólio precisa continuar no ar
+> enquanto você se candidata a vagas.
 
-### 2. Adicionar o banco de dados
+---
 
-1. No projeto, **New → Database → Add PostgreSQL**.
-2. O Railway cria a variável `DATABASE_URL` automaticamente.
-   Em **Variables** do serviço do backend, referencie a do banco:
-   `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+## 1. Banco de dados (Neon)
 
-### 3. Definir as variáveis de ambiente
+1. Entre em [neon.com](https://neon.com) com o GitHub.
+2. **Create project** — escolha a região mais próxima (ex: `AWS us-east-2`).
+3. Copie a **connection string**. Ela tem este formato:
 
-Em **Variables** do serviço do backend:
+```
+postgresql://usuario:senha@ep-algo-123.us-east-2.aws.neon.tech/neondb?sslmode=require
+```
+
+Guarde essa string: ela é o `DATABASE_URL` do passo seguinte.
+
+Use a conexão **direta**, não a `-pooler`. Nossa API é um servidor que fica
+ligado, então não precisa do pool externo — e as migrations funcionam melhor
+na conexão direta.
+
+O `?sslmode=require` faz parte da string e precisa continuar lá: o Neon só
+aceita conexões cifradas.
+
+---
+
+## 2. Backend (Render)
+
+### Criar o serviço
+
+1. Entre em [render.com](https://render.com) com o GitHub.
+2. **New → Web Service** e escolha este repositório.
+3. Confira as configurações (o [render.yaml](backend/render.yaml) já define,
+   mas vale verificar):
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npx prisma migrate deploy && npm start`
+   - **Instance Type:** `Free`
+
+### Variáveis de ambiente
+
+Em **Environment**, adicione:
 
 | Variável | Valor |
 |---|---|
-| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
-| `JWT_SECRET` | gere um novo (comando abaixo) — **nunca reutilize o de desenvolvimento** |
+| `DATABASE_URL` | a connection string do Neon (passo 1) |
+| `JWT_SECRET` | gere um novo (comando abaixo) |
+| `CORS_ORIGIN` | a URL do frontend na Vercel — deixe provisório e ajuste depois |
 | `JWT_EXPIRES_IN` | `1d` |
-| `CORS_ORIGIN` | a URL do frontend na Vercel (ex: `https://controle-financeiro.vercel.app`) |
 | `TRUST_PROXY` | `true` |
 | `NODE_ENV` | `production` |
 
@@ -35,55 +67,71 @@ Gerar o `JWT_SECRET`:
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-`CORS_ORIGIN` só será conhecida depois do deploy do frontend. Coloque um valor
-provisório, faça o deploy do frontend, e volte para corrigir.
+**Nunca reutilize o segredo de desenvolvimento.** Ele já esteve em texto puro
+na sua máquina.
 
-`TRUST_PROXY=true` é obrigatório: sem ele o limite de tentativas de login conta
-todos os usuários como um só, porque a aplicação enxerga o IP do proxy do Railway.
+**`TRUST_PROXY=true` é obrigatório.** O Render fica atrás de um proxy; sem essa
+variável a aplicação enxerga o IP do proxy e o limite de tentativas de login
+contaria todos os usuários como uma pessoa só — o primeiro atacante bloquearia
+o site inteiro.
 
-### 4. Deploy
+### Conferir
 
-O [railway.json](backend/railway.json) já define tudo:
-
-- **build:** `npm run build` (gera o Prisma Client)
-- **start:** `npx prisma migrate deploy && npm start` (aplica as migrations e sobe)
-- **healthcheck:** `/health`
-
-Depois do deploy, gere o domínio em **Settings → Networking → Generate Domain**
-e confira:
+Depois do deploy, o Render te dá uma URL. Teste:
 
 ```bash
-curl https://SEU-APP.up.railway.app/health
+curl https://SEU-APP.onrender.com/health
 ```
 
-A resposta esperada é `{"status":"ok"}`.
+Resposta esperada: `{"status":"ok"}`
 
 ---
 
-## Frontend (Vercel)
+## 3. Frontend (Vercel)
 
 1. [vercel.com](https://vercel.com) → **Add New → Project** → escolha o repositório.
 2. **Root Directory:** `frontend`
-3. Framework: Vite (detectado automaticamente).
-4. Em **Environment Variables**, defina:
+3. Framework: Vite (detectado sozinho).
+4. Em **Environment Variables**:
 
 | Variável | Valor |
 |---|---|
-| `VITE_API_URL` | a URL do backend no Railway, **sem barra no final** |
+| `VITE_API_URL` | a URL do Render, **sem barra no final** |
 
 5. Deploy.
-6. Volte ao Railway e ajuste `CORS_ORIGIN` para a URL da Vercel.
+6. **Volte ao Render** e ajuste `CORS_ORIGIN` para a URL da Vercel.
+   Sem isso o navegador bloqueia todas as chamadas do frontend.
 
-Variáveis do Vite são lidas **no momento do build**. Se mudar `VITE_API_URL`
-depois, é preciso refazer o deploy — não basta salvar a variável.
+Variáveis do Vite entram no código **durante o build**. Se mudar `VITE_API_URL`
+depois, é preciso refazer o deploy — salvar a variável não basta.
+
+---
+
+## O que esperar do plano gratuito
+
+**O backend dorme após 15 minutos sem acesso.** A primeira requisição depois
+disso demora de 30 a 60 segundos enquanto o serviço acorda; as seguintes são
+normais.
+
+Na prática, se você mandar o link para alguém, a primeira tela pode demorar.
+Duas formas de contornar:
+
+- Abrir o link alguns minutos antes de mostrar para alguém.
+- Um serviço gratuito de ping (ex: [UptimeRobot](https://uptimerobot.com))
+  chamando `/health` a cada 10 minutos. Consome as 750 h/mês, que é justamente
+  o suficiente para um serviço ficar ligado o mês inteiro.
+
+O banco no Neon também hiberna após 5 minutos parado, mas acorda em menos de
+um segundo — esse não incomoda.
 
 ---
 
 ## Checklist antes de publicar
 
 - [ ] `JWT_SECRET` de produção é novo e tem 32+ caracteres
-- [ ] `CORS_ORIGIN` aponta para a URL real do frontend
-- [ ] `TRUST_PROXY=true` no Railway
-- [ ] `/health` responde 200
+- [ ] `CORS_ORIGIN` aponta para a URL real da Vercel
+- [ ] `TRUST_PROXY=true` no Render
+- [ ] `DATABASE_URL` do Neon mantém o `?sslmode=require`
+- [ ] `/health` responde `{"status":"ok"}`
 - [ ] Cadastro, login e lançamento funcionam pela interface publicada
-- [ ] Nenhum `.env` foi commitado (`git ls-files | grep "\.env$"` não retorna nada)
+- [ ] `git ls-files | grep "\.env$"` não retorna nada

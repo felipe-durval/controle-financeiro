@@ -1,0 +1,35 @@
+# Configuracao de deploy no Render.
+# Nao declaramos banco aqui: o PostgreSQL gratuito do Render expira em
+# 30 dias. Usamos o Neon, cujo plano gratuito nao expira.
+
+services:
+  - type: web
+    name: controle-financeiro-api
+    runtime: node
+    plan: free
+    # O backend fica em uma subpasta do repositorio.
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    # As migrations rodam antes do servidor subir. O comando e idempotente:
+    # se nao houver nada novo, ele apenas confirma e segue.
+    startCommand: npx prisma migrate deploy && npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # O Render fica atras de um proxy: sem isto o limite de tentativas
+      # enxergaria o IP do proxy e contaria todos como um unico usuario.
+      - key: TRUST_PROXY
+        value: 'true'
+      - key: JWT_EXPIRES_IN
+        value: 1d
+      # Definidas no painel do Render, nunca no arquivo:
+      #   DATABASE_URL  -> string de conexao do Neon
+      #   JWT_SECRET    -> gerado com crypto.randomBytes(48)
+      #   CORS_ORIGIN   -> URL do frontend na Vercel
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

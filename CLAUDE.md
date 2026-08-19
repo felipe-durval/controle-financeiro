@@ -22,7 +22,7 @@ Sistema de controle financeiro pessoal, feito como projeto de portfólio para ca
 - **Frontend:** React (com Vite)
 - **Gráficos:** Recharts
 - **Testes:** Jest (backend) + React Testing Library (frontend, se der tempo)
-- **Deploy:** Backend no Railway, frontend no Vercel
+- **Deploy:** Banco no Neon, backend no Render, frontend no Vercel (todos no plano gratuito; ver DEPLOY.md)
 
 ## Estrutura de pastas esperada
 
