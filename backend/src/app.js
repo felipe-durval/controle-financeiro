@@ -1,9 +1,20 @@
 const express = require('express');
+const cors = require('cors');
+
 const authRoutes = require('./routes/auth-routes');
 const categoryRoutes = require('./routes/category-routes');
 const transactionRoutes = require('./routes/transaction-routes');
 
 const app = express();
+
+// Por padrao o navegador bloqueia requisicoes entre origens diferentes
+// (o frontend em :5173 chamando a API em :3000). O CORS libera apenas
+// as origens que informamos, nao todas.
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim());
+
+app.use(cors({ origin: allowedOrigins }));
 
 // Middleware que le o corpo JSON da requisicao e coloca em req.body.
 // Sem ele, req.body fica indefinido em POST/PUT.
