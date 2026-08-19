@@ -27,6 +27,10 @@ model Category {
   userId       Int
   user         User          @relation(fields: [userId], references: [id])
   transactions Transaction[]
+
+  // Um usuario nao pode ter duas categorias com o mesmo nome,
+  // mas usuarios diferentes podem ter categorias de nome igual.
+  @@unique([userId, name])
 }
 
 model Transaction {
