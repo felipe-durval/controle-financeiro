@@ -127,4 +127,24 @@ async function login(req, res) {
   }
 }
 
-module.exports = { register, login };
+// Rota protegida: o req.userId foi colocado pelo middleware de autenticacao.
+async function me(req, res) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: { id: true, name: true, email: true, createdAt: true },
+    });
+
+    // O token pode ser valido mas o usuario ter sido excluido depois.
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario nao encontrado.' });
+    }
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error('Erro ao buscar usuario logado:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+}
+
+module.exports = { register, login, me };
