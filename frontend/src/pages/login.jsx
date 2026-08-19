@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 import AuthForm from '../components/auth-form.jsx';
 import TextField from '../components/text-field.jsx';
@@ -13,6 +13,11 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Se o PrivateRoute mandou o usuario para ca, ele guardou o destino
+  // original em state.from. Sem isso, todo login cairia em /transactions.
+  const destination = location.state?.from?.pathname || '/transactions';
 
   async function handleSubmit(event) {
     // Sem isso o navegador recarregaria a pagina ao enviar o formulario.
@@ -30,7 +35,7 @@ function Login() {
     try {
       await login({ email: email.trim(), password });
       // replace: true impede o usuario de voltar para o login pelo botao "voltar".
-      navigate('/transactions', { replace: true });
+      navigate(destination, { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
