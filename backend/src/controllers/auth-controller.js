@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const prisma = require('../prisma-client');
 
 // Quantas rodadas de processamento o bcrypt usa para gerar o hash.
@@ -67,4 +68,63 @@ async function register(req, res) {
   }
 }
 
-module.exports = { register };
+// Hash descartavel de uma senha qualquer. Serve para gastar o mesmo tempo
+// de CPU quando o email nao existe, evitando que a diferenca de tempo de
+// resposta revele quais emails estao cadastrados.
+const DUMMY_HASH = bcrypt.hashSync('senha-que-nunca-sera-usada', SALT_ROUNDS);
+
+function validateLoginInput({ email, password }) {
+  const errors = [];
+
+  if (typeof email !== 'string' || email.trim().length === 0) {
+    errors.push('O email e obrigatorio.');
+  }
+
+  if (typeof password !== 'string' || password.length === 0) {
+    errors.push('A senha e obrigatoria.');
+  }
+
+  return errors;
+}
+
+async function login(req, res) {
+  try {
+    const { email, password } = req.body ?? {};
+
+    const errors = validateLoginInput({ email, password });
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: email.trim().toLowerCase() },
+    });
+
+    const passwordMatches = await bcrypt.compare(
+      password,
+      user ? user.password : DUMMY_HASH
+    );
+
+    // Mensagem generica de proposito: dizer "email nao existe" permitiria
+    // descobrir quais emails estao cadastrados no sistema.
+    if (!user || !passwordMatches) {
+      return res.status(401).json({ error: 'Email ou senha invalidos.' });
+    }
+
+    // O token carrega apenas o id do usuario. Nada sensivel entra aqui:
+    // o payload de um JWT e apenas codificado em base64, nao criptografado.
+    const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+    });
+
+    return res.status(200).json({
+      token,
+      user: { id: user.id, name: user.name, email: user.email },
+    });
+  } catch (error) {
+    console.error('Erro ao fazer login:', error);
+    return res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+}
+
+module.exports = { register, login };

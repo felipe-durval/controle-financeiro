@@ -3,6 +3,13 @@ require('dotenv').config({ quiet: true });
 const express = require('express');
 const authRoutes = require('./src/routes/auth-routes');
 
+// Falha logo na inicializacao se faltar configuracao essencial,
+// em vez de quebrar so quando alguem tentar fazer login.
+if (!process.env.JWT_SECRET) {
+  console.error('Erro: a variavel JWT_SECRET nao esta definida. Veja o .env.example.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
