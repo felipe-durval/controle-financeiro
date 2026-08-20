@@ -24,3 +24,7 @@ Thumbs.db
 
 # Testes
 coverage/
+
+# Instrucoes de trabalho com o assistente de IA.
+# Fica so na maquina local: e um documento pessoal, nao parte do produto.
+CLAUDE.md
