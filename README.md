@@ -1,22 +1,57 @@
 # Controle Financeiro
 
-Sistema de controle financeiro pessoal, feito como projeto de portfólio.
+Aplicação web para acompanhar receitas e despesas pessoais: lançamentos por
+categoria, filtros por período e um painel com a evolução dos gastos.
+
+**[▶ Acessar o sistema](https://controle-financeiro-tau-tan.vercel.app)**
+
+> A API roda em plano gratuito e hiberna quando fica sem uso. A primeira visita
+> pode levar até um minuto para carregar — a aplicação avisa enquanto isso
+> acontece.
+
+![Node](https://img.shields.io/badge/Node.js-22-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)
+![Testes](https://img.shields.io/badge/testes-102%20passando-brightgreen)
 
 ## Funcionalidades
 
-- Cadastro e login de usuário (JWT)
-- CRUD de transações (receitas e despesas)
-- Categorias de transações
-- Filtros por mês e por categoria
-- Dashboard com gráficos
+- Autenticação com JWT e senhas protegidas com bcrypt
+- Lançamento de receitas e despesas, com edição e exclusão
+- Categorias próprias de cada usuário
+- Filtros por mês e por categoria, aplicados no banco
+- Painel com gastos por categoria e evolução dos últimos seis meses
+- Tema claro e escuro
 
 ## Stack
 
-- **Backend:** Node.js + Express + Prisma
-- **Banco de dados:** PostgreSQL (via Docker em desenvolvimento)
-- **Autenticação:** JWT + bcrypt
-- **Frontend:** React + Vite + Recharts
-- **Testes:** Jest + Supertest
+| Camada | Tecnologias |
+|---|---|
+| Backend | Node.js, Express, Prisma |
+| Banco de dados | PostgreSQL |
+| Autenticação | JWT, bcrypt |
+| Frontend | React, Vite, React Router, Recharts |
+| Testes | Jest, Supertest |
+| Infraestrutura | Docker (desenvolvimento), Render, Neon, Vercel |
+
+## Decisões técnicas
+
+**Isolamento entre contas.** Toda consulta filtra pelo usuário do token, nunca
+por um identificador vindo do corpo da requisição. Ao lançar uma transação, a
+categoria informada também é verificada — sem isso, alguém poderia usar a
+categoria de outra pessoa. Há testes cobrindo tentativas de acesso cruzado em
+cada rota.
+
+**Mensagens de erro que não revelam nada.** Senha errada e e-mail inexistente
+devolvem a mesma resposta, e as tentativas de login são limitadas por origem.
+Respostas de erro nunca expõem caminhos internos ou detalhes da stack.
+
+**Gráficos legíveis por quem não distingue cores.** A paleta evita o par
+verde/vermelho, e cada gráfico tem uma versão em tabela para leitores de tela.
+
+**102 testes automatizados** cobrindo autenticação, permissões, validações,
+filtros e cabeçalhos de segurança, em um banco separado do de desenvolvimento.
 
 ## Como rodar o backend
 

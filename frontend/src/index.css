@@ -823,3 +823,50 @@ button:disabled {
     animation-duration: 0.01ms !important;
   }
 }
+
+/* ==========================================================================
+   Aviso de servidor acordando
+   ========================================================================== */
+
+.wake-notice {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  background: var(--accent-soft);
+  border-bottom: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.wake-spinner {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: wake-spin 0.7s linear infinite;
+}
+
+@keyframes wake-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Quem pediu menos animacao ve um ponto pulsando de leve
+   em vez de algo girando. */
+@media (prefers-reduced-motion: reduce) {
+  .wake-spinner {
+    animation: none;
+    border-top-color: var(--accent);
+  }
+}
