@@ -1,143 +1,66 @@
 # Deploy
 
-Três serviços, todos com plano gratuito permanente e **sem cartão de crédito**:
+## Arquitetura em produção
 
-| Parte | Serviço | Por quê |
+| Camada | Serviço | Observação |
 |---|---|---|
-| Banco de dados | [Neon](https://neon.com) | Postgres gratuito que **não expira**, até 100 projetos |
-| Backend | [Render](https://render.com) | Serviço web gratuito, 750 h/mês |
-| Frontend | [Vercel](https://vercel.com) | Gratuito para projetos pessoais |
+| Banco de dados | Neon (PostgreSQL 17) | Conexão direta, SSL com verificação de certificado |
+| API | Render | Node 22, migrations aplicadas no start |
+| Interface | Vercel | Build estático do Vite |
 
-> **Por que o banco não fica no Render:** o PostgreSQL gratuito dele **expira em
-> 30 dias** e depois é apagado. Um projeto de portfólio precisa continuar no ar
-> enquanto você se candidata a vagas.
+## Variáveis de ambiente da API
 
----
-
-## 1. Banco de dados (Neon)
-
-1. Entre em [neon.com](https://neon.com) com o GitHub.
-2. **Create project** — escolha a região mais próxima (ex: `AWS us-east-2`).
-3. Copie a **connection string**. Ela tem este formato:
-
-```
-postgresql://usuario:senha@ep-algo-123.us-east-2.aws.neon.tech/neondb?sslmode=require
-```
-
-Guarde essa string: ela é o `DATABASE_URL` do passo seguinte.
-
-Use a conexão **direta**, não a `-pooler`. Nossa API é um servidor que fica
-ligado, então não precisa do pool externo — e as migrations funcionam melhor
-na conexão direta.
-
-O `?sslmode=require` faz parte da string e precisa continuar lá: o Neon só
-aceita conexões cifradas.
-
----
-
-## 2. Backend (Render)
-
-### Criar o serviço
-
-1. Entre em [render.com](https://render.com) com o GitHub.
-2. **New → Web Service** e escolha este repositório.
-3. Confira as configurações (o [render.yaml](backend/render.yaml) já define,
-   mas vale verificar):
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install && npm run build`
-   - **Start Command:** `npx prisma migrate deploy && npm start`
-   - **Instance Type:** `Free`
-
-### Variáveis de ambiente
-
-Em **Environment**, adicione:
-
-| Variável | Valor |
+| Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | a connection string do Neon (passo 1) |
-| `JWT_SECRET` | gere um novo (comando abaixo) |
-| `CORS_ORIGIN` | a URL do frontend na Vercel — deixe provisório e ajuste depois |
-| `JWT_EXPIRES_IN` | `1d` |
-| `TRUST_PROXY` | `true` |
+| `DATABASE_URL` | String de conexão do PostgreSQL, com `sslmode` |
+| `JWT_SECRET` | Segredo de assinatura dos tokens; mínimo de 32 caracteres |
+| `JWT_EXPIRES_IN` | Validade do token (padrão `1d`) |
+| `CORS_ORIGIN` | Origens autorizadas, separadas por vírgula |
+| `TRUST_PROXY` | `true` ou o número de proxies à frente da aplicação |
 | `NODE_ENV` | `production` |
 
-Gerar o `JWT_SECRET`:
+O servidor valida essas variáveis na inicialização e **recusa subir** se alguma
+estiver ausente ou inválida — falhar no deploy é melhor do que atender
+requisições com um segredo fraco ou sem CORS configurado.
 
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
+Modelo comentado em [backend/.env.example](backend/.env.example).
+Configuração do serviço em [backend/render.yaml](backend/render.yaml).
 
-**Nunca reutilize o segredo de desenvolvimento.** Ele já esteve em texto puro
-na sua máquina.
+## Decisões
 
-**`TRUST_PROXY=true` é obrigatório.** O Render fica atrás de mais de um proxy.
-Sem essa variável — ou com um número de saltos errado — a aplicação enxerga o IP
-de um balanceador interno que muda a cada requisição, e o limite de tentativas de
-login nunca acumula, ficando inútil.
+### O banco não fica na mesma plataforma da API
 
-Com `true`, a aplicação usa o primeiro IP do cabeçalho `X-Forwarded-For`, que é o
-do cliente. A contrapartida é que esse cabeçalho é enviado pelo cliente: alguém
-determinado pode forjar IPs diferentes para escapar do limite. Se um dia a
-plataforma documentar quantos proxies ela usa, troque `true` por esse número — aí
-o IP passa a vir de uma parte da cadeia que o cliente não controla.
+O PostgreSQL gratuito do Render expira 30 dias após a criação e é apagado depois
+de um período de carência. Como o projeto precisa continuar acessível por tempo
+indeterminado, o banco ficou no Neon, cujo plano gratuito não tem prazo.
 
-### Conferir
+### Confiança na cadeia de proxies
 
-Depois do deploy, o Render te dá uma URL. Teste:
+O limite de tentativas de login identifica quem chama pelo endereço de origem.
+Atrás de um proxy, esse endereço vem do cabeçalho `X-Forwarded-For`, e o Express
+precisa saber em quantos saltos confiar.
 
-```bash
-curl https://SEU-APP.onrender.com/health
-```
+A configuração inicial confiava em um salto — o que selecionava um balanceador
+interno da plataforma, cujo endereço muda a cada requisição. O resultado era um
+contador que nunca acumulava: dezenas de tentativas de senha errada passavam sem
+bloqueio.
 
-Resposta esperada: `{"status":"ok"}`
+Confiando na cadeia inteira, o endereço passa a ser o de quem realmente chamou.
+A contrapartida é que esse cabeçalho é enviado pelo cliente e pode ser forjado.
+Fixar o número exato de saltos seria mais seguro, mas depende de a plataforma
+documentar quantos são — e um número errado reintroduz o problema.
 
----
+### Migrations no comando de start
 
-## 3. Frontend (Vercel)
+`prisma migrate deploy` roda antes do servidor subir. O comando é idempotente:
+sem migrations pendentes, ele apenas confirma o estado e segue. Isso mantém o
+schema do banco sincronizado a cada deploy sem intervenção manual.
 
-1. [vercel.com](https://vercel.com) → **Add New → Project** → escolha o repositório.
-2. **Root Directory:** `frontend`
-3. Framework: Vite (detectado sozinho).
-4. Em **Environment Variables**:
+## Limitações conhecidas
 
-| Variável | Valor |
-|---|---|
-| `VITE_API_URL` | a URL do Render, **sem barra no final** |
+O plano gratuito do Render suspende o serviço após 15 minutos sem tráfego. A
+primeira requisição seguinte leva de 30 a 60 segundos para acordá-lo; as demais
+respondem normalmente. Um ping periódico em `/health` mantém o serviço ativo
+dentro da cota mensal.
 
-5. Deploy.
-6. **Volte ao Render** e ajuste `CORS_ORIGIN` para a URL da Vercel.
-   Sem isso o navegador bloqueia todas as chamadas do frontend.
-
-Variáveis do Vite entram no código **durante o build**. Se mudar `VITE_API_URL`
-depois, é preciso refazer o deploy — salvar a variável não basta.
-
----
-
-## O que esperar do plano gratuito
-
-**O backend dorme após 15 minutos sem acesso.** A primeira requisição depois
-disso demora de 30 a 60 segundos enquanto o serviço acorda; as seguintes são
-normais.
-
-Na prática, se você mandar o link para alguém, a primeira tela pode demorar.
-Duas formas de contornar:
-
-- Abrir o link alguns minutos antes de mostrar para alguém.
-- Um serviço gratuito de ping (ex: [UptimeRobot](https://uptimerobot.com))
-  chamando `/health` a cada 10 minutos. Consome as 750 h/mês, que é justamente
-  o suficiente para um serviço ficar ligado o mês inteiro.
-
-O banco no Neon também hiberna após 5 minutos parado, mas acorda em menos de
-um segundo — esse não incomoda.
-
----
-
-## Checklist antes de publicar
-
-- [ ] `JWT_SECRET` de produção é novo e tem 32+ caracteres
-- [ ] `CORS_ORIGIN` aponta para a URL real da Vercel
-- [ ] `TRUST_PROXY=true` no Render
-- [ ] `DATABASE_URL` do Neon mantém o `?sslmode=require`
-- [ ] `/health` responde `{"status":"ok"}`
-- [ ] Cadastro, login e lançamento funcionam pela interface publicada
-- [ ] `git ls-files | grep "\.env$"` não retorna nada
+O banco também hiberna, mas retoma em menos de um segundo.

@@ -82,7 +82,5 @@ Rotas protegidas exigem o header `Authorization: Bearer <token>`.
 
 ## Deploy
 
-Banco no Neon, backend no Render e frontend na Vercel — todos no plano gratuito,
-sem cartão de crédito. Passo a passo em [DEPLOY.md](./DEPLOY.md).
-
-Mais contexto e decisões de projeto em [CLAUDE.md](./CLAUDE.md).
+API no Render, banco PostgreSQL no Neon e interface na Vercel.
+Arquitetura e decisões em [DEPLOY.md](./DEPLOY.md).
