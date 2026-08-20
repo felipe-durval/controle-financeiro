@@ -10,10 +10,26 @@ const { authLimiter, apiLimiter } = require('./middlewares/rate-limit-middleware
 const app = express();
 
 // Em producao a aplicacao fica atras do proxy da plataforma de deploy.
-// Sem isto, o Express enxerga o IP do proxy em vez do IP de quem chamou,
-// e o limite de tentativas contaria todo mundo como uma pessoa so.
-if (process.env.TRUST_PROXY === 'true') {
-  app.set('trust proxy', 1);
+// Sem isto o Express enxerga o IP do proxy, e nao o de quem chamou.
+//
+// O valor importa: "1" confia em um unico salto. Plataformas como o Render
+// tem mais de um proxy na frente, e ai o IP escolhido e o de um balanceador
+// interno que muda a cada requisicao -- o limite de tentativas nunca acumula.
+//
+// TRUST_PROXY aceita:
+//   "true"  -> confia na cadeia inteira e usa o primeiro IP do X-Forwarded-For
+//   um numero -> confia nessa quantidade exata de saltos
+//
+// Contrapartida do "true": o primeiro IP do cabecalho e enviado pelo cliente,
+// entao alguem pode forjar IPs diferentes para escapar do limite. Em troca,
+// o limite passa a funcionar para o uso normal. Preferir o numero exato de
+// saltos quando a plataforma documentar quantos sao.
+const trustProxy = process.env.TRUST_PROXY;
+
+if (trustProxy === 'true') {
+  app.set('trust proxy', true);
+} else if (trustProxy && Number.isInteger(Number(trustProxy))) {
+  app.set('trust proxy', Number(trustProxy));
 }
 
 // Adiciona cabecalhos de seguranca (X-Content-Type-Options, Referrer-Policy,

@@ -70,10 +70,16 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 **Nunca reutilize o segredo de desenvolvimento.** Ele já esteve em texto puro
 na sua máquina.
 
-**`TRUST_PROXY=true` é obrigatório.** O Render fica atrás de um proxy; sem essa
-variável a aplicação enxerga o IP do proxy e o limite de tentativas de login
-contaria todos os usuários como uma pessoa só — o primeiro atacante bloquearia
-o site inteiro.
+**`TRUST_PROXY=true` é obrigatório.** O Render fica atrás de mais de um proxy.
+Sem essa variável — ou com um número de saltos errado — a aplicação enxerga o IP
+de um balanceador interno que muda a cada requisição, e o limite de tentativas de
+login nunca acumula, ficando inútil.
+
+Com `true`, a aplicação usa o primeiro IP do cabeçalho `X-Forwarded-For`, que é o
+do cliente. A contrapartida é que esse cabeçalho é enviado pelo cliente: alguém
+determinado pode forjar IPs diferentes para escapar do limite. Se um dia a
+plataforma documentar quantos proxies ela usa, troque `true` por esse número — aí
+o IP passa a vir de uma parte da cadeia que o cliente não controla.
 
 ### Conferir
 
