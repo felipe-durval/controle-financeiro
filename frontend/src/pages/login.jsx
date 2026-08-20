@@ -5,6 +5,10 @@ import AuthForm from '../components/auth-form.jsx';
 import TextField from '../components/text-field.jsx';
 import { login } from '../services/auth-service.js';
 
+// Conta publica com um semestre de lancamentos, para quem quiser
+// conhecer o sistema sem precisar cadastrar nada.
+const DEMO = { email: 'demo@exemplo.com', password: 'demo12345' };
+
 function Login() {
   // Um estado para cada campo: sao inputs controlados pelo React.
   const [email, setEmail] = useState('');
@@ -30,10 +34,15 @@ function Login() {
       return;
     }
 
+    await entrar({ email: email.trim(), password });
+  }
+
+  async function entrar(credenciais) {
+    setError('');
     setLoading(true);
 
     try {
-      await login({ email: email.trim(), password });
+      await login(credenciais);
       // replace: true impede o usuario de voltar para o login pelo botao "voltar".
       navigate(destination, { replace: true });
     } catch (err) {
@@ -42,6 +51,14 @@ function Login() {
       // Roda tanto no sucesso quanto no erro, para o botao nunca travar.
       setLoading(false);
     }
+  }
+
+  function handleDemo() {
+    // Preenche os campos antes de enviar, para ficar visivel
+    // que nao ha nada escondido acontecendo.
+    setEmail(DEMO.email);
+    setPassword(DEMO.password);
+    entrar(DEMO);
   }
 
   return (
@@ -72,6 +89,21 @@ function Login() {
         onChange={setPassword}
         autoComplete="current-password"
       />
+
+      <div className="auth-divider">
+        <span>ou</span>
+      </div>
+
+      <button
+        type="button"
+        className="button-secondary"
+        onClick={handleDemo}
+        disabled={loading}
+      >
+        Entrar com a conta de demonstracao
+      </button>
+
+      <p className="auth-hint">Conta pronta, com seis meses de lancamentos.</p>
     </AuthForm>
   );
 }

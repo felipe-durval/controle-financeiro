@@ -870,3 +870,27 @@ button:disabled {
     border-top-color: var(--accent);
   }
 }
+
+/* Separador "ou" entre o formulario e a entrada de demonstracao. */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-subtle);
+  font-size: 0.8125rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-hint {
+  margin-top: -0.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-subtle);
+}

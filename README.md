@@ -5,6 +5,14 @@ categoria, filtros por período e um painel com a evolução dos gastos.
 
 **[▶ Acessar o sistema](https://controle-financeiro-tau-tan.vercel.app)**
 
+Há um botão de acesso à conta de demonstração na tela de login, já com seis
+meses de lançamentos — não é preciso criar cadastro para explorar.
+
+| | |
+|---|---|
+| E-mail | `demo@exemplo.com` |
+| Senha | `demo12345` |
+
 > A API roda em plano gratuito e hiberna quando fica sem uso. A primeira visita
 > pode levar até um minuto para carregar — a aplicação avisa enquanto isso
 > acontece.
@@ -78,6 +86,19 @@ npm run dev
 A API fica em `http://localhost:3000`.
 
 Para parar o banco: `docker compose down` (os dados são preservados no volume).
+
+## Conta de demonstração
+
+Para recriar os dados da conta de demonstração:
+
+```bash
+cd backend && node scripts/seed-demo.js
+```
+
+O script usa a API pública em vez do banco, então funciona tanto localmente
+quanto contra o ambiente publicado — basta passar a URL como argumento. Ele
+remove os lançamentos anteriores antes de gerar os novos, e pode ser executado
+quantas vezes for necessário.
 
 ## Testes
 
